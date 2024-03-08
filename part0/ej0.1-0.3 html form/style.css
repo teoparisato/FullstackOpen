@@ -1,0 +1,39 @@
+.container, .form {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px 50px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid gray;
+    border-color: black;
+    background-color: rgb(236, 236, 236);
+}
+
+.utn {
+    width: 300px;
+    margin: 0 auto;
+}
+
+html {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+h1, h2 {
+    margin: 0 0 10px 0;
+    text-shadow: 3px 3px 1px rgb(199, 199, 199);
+    text-align: center;
+}
+
+form {
+    margin: 0 auto;
+    width: 400px;
+}
+
+input[type="text"] {
+    width: 150px;
+}
+
+#email {
+    width: 310px;
+}
+
