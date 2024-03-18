@@ -44,19 +44,40 @@ const App = () => {
 
   return (
     <div>
-      <h1>Anecdote of the date</h1>
-      {anecdotes[selected]}
-      <br />
-      has {votes[selected]} votes
-      <br />
-      <button onClick={voteAnecdote}>vote</button>
-      <button onClick={selectAnecdote}>next anecdote</button>
+      <Title name="Anecdote of the date" />
 
-      <h1>Anecdote with most votes</h1>
-      {mostVoted}
-      <br />
-      has {mostVotes} votes
+      <Anecdote anecdote={anecdotes[selected]} votes={votes[selected]}/>
+      <Button text="vote" onSmash={voteAnecdote}/>
+      <Button text="next anecdote" onSmash={selectAnecdote}/>
+
+      <Title name="Anecdote with most votes"/>
+      <Anecdote anecdote={mostVoted} votes={mostVotes}/>
     </div>
+  )
+}
+
+const Title = (props) => {
+  return (
+    <>
+      <h1>{props.name}</h1>
+    </>
+  )
+}
+
+const Anecdote = (props) => {
+  return (
+    <>
+      {props.anecdote}
+      <br />
+      has {props.votes} votes
+      <br />
+    </>
+  )
+}
+
+const Button = (props) => {
+  return (
+    <button onClick={props.onSmash}>{props.text}</button>
   )
 }
 
