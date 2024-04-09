@@ -3,26 +3,23 @@ import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
 import axios from 'axios'
+import personService from './services/personsService'
+
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    /*{ name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }*/
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  useEffect( () => {
-    console.log('effect');
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled');
-        setPersons(response.data)
-      })   
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+      .catch(error => console.log("Fetching people failed"))
+
   }, [])
 
   const addName = (event) => {
@@ -30,18 +27,37 @@ const App = () => {
     const newContact= {
       name: newName,
       number: newNumber,
-      id: persons.length + 1
     }
 
-
-    if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+    if (!persons.some((person) => person.name === newName)) {
+      // la persona no existe
+      personService.create(newContact)
+        .then(personReturned => {
+          setPersons(persons.concat(personReturned))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => console.log(`Create person ${newContact.name} failed`))
+      return;
     }
-    else {
-      setPersons(persons.concat(newContact))
-      setNewName('')
-      setNewNumber('')
+    
+    if (!window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
+      // el usuario no quiere cambiar el numero
+      return;
     }
+    
+    // actualizacion del numero
+    const changedPerson = {...persons.find(person => person.name === newName), number: newNumber}  
+    const personsUpdate = persons.map(person =>
+      person.name !== newName 
+        ? person 
+        : changedPerson
+    )
+    
+    setPersons(personsUpdate)  
+    setNewName('')
+    setNewNumber('')
+    personService.update(changedPerson.id, changedPerson).catch(error => console.log(`Update person ${changedPerson.name} failed`))
   }
 
   const personsToShow = filter === '' 
@@ -60,6 +76,16 @@ const App = () => {
     setFilter(event.target.value)
   }
 
+  const handleDeleteOf = (personId) => {
+    if (window.confirm(`Delete ${persons.find(person => person.id === personId).name}?`)) {
+      personService.deletePerson(personId)
+      .then(response => { 
+        setPersons(persons.filter(person => person.id !== personId))
+      })
+      .catch(error => console.log(`Person couldn't be deleted`))
+    }  
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -69,7 +95,7 @@ const App = () => {
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addName={addName}/>
 
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow}/>
+      <Persons personsToShow={personsToShow} handleDelete={handleDeleteOf}/>
     </div>
   )
 }
